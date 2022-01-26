@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UserService.AsyncDataServices;
 using UserService.Dtos;
 using UserService.Http;
 using UserService.Repository;
@@ -15,16 +16,19 @@ namespace UserService.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IHttpOrdersClient _ordersClient;
         private readonly IHttpStockClient _stockClient;
+        private readonly IMessageBusClient _messageBusClient;
 
         public UsersController(IHttpOrdersClient ordersClient,
                                IHttpStockClient stockClient, 
                                IMapper mapper, 
-                               IUserRepository userRepository)
+                               IUserRepository userRepository,
+                               IMessageBusClient messageBusClient)
         {
             _ordersClient = ordersClient;
             _stockClient = stockClient;
             _mapper = mapper;
             _userRepository = userRepository;
+            _messageBusClient = messageBusClient;
         }
 
         [HttpGet("orders")]
@@ -81,6 +85,18 @@ namespace UserService.Controllers
             }
 
             var newOrder = await _ordersClient.CreateOrder(newOrderDto);
+
+            //send async Message
+            try
+            {
+                var orderPublishedDto = _mapper.Map<OrderPublishedDto>(newOrderDto);
+                orderPublishedDto.Event = "Order_Published";
+                _messageBusClient.PublishNewOrder(orderPublishedDto);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"--> Could not send asynchronously: {ex.Message}");
+            }
 
             return Ok(newOrder);
         }

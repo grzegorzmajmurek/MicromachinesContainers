@@ -1,31 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: orders-depl
+    name: users-depl
 spec:
     replicas: 1
     selector:
         matchLabels:
-            app: orderservice
+            app: userservice
     template:
         metadata:
             labels:
-                app: orderservice
+                app: userservice
         spec:
             containers:
-                - name: orderservice
-                  image: grzegorzmajmurek/orderservice:latest
+                - name: userservice
+                  image: grzegorzmajmurek/usersservice:latest
+                  imagePullPolicy: IfNotPresent
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: orders-clusterip-srv
+  name: users-clusterip-srv
 spec:
   type: ClusterIP
   selector:
-    app: orderservice
+    app: userservice
   ports:
-  - name: orderservice
+  - name: userservice
     protocol: TCP
     port: 80
     targetPort: 80

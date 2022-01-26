@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using UserService.AsyncDataServices;
 using UserService.Data;
 using UserService.Http;
 using UserService.Repository;
@@ -10,6 +11,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDataba
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddHttpClient<IHttpOrdersClient, HttpOrdersClient>();
 builder.Services.AddHttpClient<IHttpStockClient, HttpStockClient>();
+builder.Services.AddSingleton<IMessageBusClient, MessageBusClient>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

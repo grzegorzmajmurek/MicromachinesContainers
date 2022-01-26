@@ -1,31 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: orders-depl
+    name: stocks-depl
 spec:
     replicas: 1
     selector:
         matchLabels:
-            app: orderservice
+            app: stockservice
     template:
         metadata:
             labels:
-                app: orderservice
+                app: stockservice
         spec:
             containers:
-                - name: orderservice
-                  image: grzegorzmajmurek/orderservice:latest
+                - name: stockservice
+                  image: grzegorzmajmurek/stocksservice:latest
+                  imagePullPolicy: IfNotPresent
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: orders-clusterip-srv
+  name: stocks-clusterip-srv
 spec:
   type: ClusterIP
   selector:
-    app: orderservice
+    app: stockservice
   ports:
-  - name: orderservice
+  - name: stockservice
     protocol: TCP
     port: 80
     targetPort: 80
